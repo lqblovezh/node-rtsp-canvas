@@ -1,0 +1,18 @@
+{
+  "name": "node-rtsp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "author": "jiackFly",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "moment": "^2.24.0",
+    "node-cmd": "^3.0.0",
+    "node-rtsp-stream-jsmpeg": "0.0.2"
+  }
+}
