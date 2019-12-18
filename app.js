@@ -26,10 +26,8 @@ app.use(
 // 设置允许跨域访问该服务.
 app.all('*', function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
-	//Access-Control-Allow-Headers ,可根据浏览器的F12查看,把对应的粘贴在这里就行
-	res.header('Access-Control-Allow-Headers', 'Content-Type');
+	res.header('Access-Control-Allow-Headers', '*');
 	res.header('Access-Control-Allow-Methods', '*');
-	res.header('Content-Type', 'application/json;charset=utf-8');
 	next();
 });
 
@@ -41,7 +39,7 @@ app.post('/port', async function(req, res) {
 	if (!url) {
 		res.send({
 			data: '缺少地址',
-			code: 400
+			code: 0
 		});
 		return;
 	}
@@ -49,7 +47,10 @@ app.post('/port', async function(req, res) {
 	// cmd.run('pkill -f ffmpeg.exe')
 	await startFFmpeg(url);
 	setTimeout(() => {
-		res.send('成功');
+		res.send({
+			data: '启动',
+			code: 0
+		});
 	}, 4000);
 });
 
@@ -63,7 +64,7 @@ app.get('/port/stop', async function(req, res) {
 			playList && playList.stop(); // 关闭websocker端口
 			res.send({
 				data: '关闭成功',
-				code: 100
+				code: 0
 			});
 		}
 	);
