@@ -1,0 +1,18 @@
+2019-12-19 17:23:50 - Starting C:\Program Files\nodejs\node.exe  --harmony D:\workspace\node-video\node_modules\node-windows\lib\wrapper.js --file D:\workspace\node-video\app.js --log "node_rtsp wrapper" --grow 0.25 --wait 1 --maxrestarts 40 --abortonerror n --stopparentfirst undefined
+2019-12-19 17:23:50 - Started 18036
+2019-12-19 17:24:12 - Stopping node_rtsp.exe
+2019-12-19 17:24:12 - ProcessKill 18036
+2019-12-19 17:24:12 - Shutdown exception
+Message:系统正在关机。
+
+Stacktrace:   在 System.Runtime.InteropServices.Marshal.ThrowExceptionForHRInternal(Int32 errorCode, IntPtr errorInfo)
+   在 System.Management.ManagementScope.InitializeGuts(Object o)
+   在 System.Management.ManagementScope.Initialize()
+   在 System.Management.ManagementObjectSearcher.Initialize()
+   在 System.Management.ManagementObjectSearcher.Get()
+   在 winsw.WrapperService.GetChildPids(Int32 pid)
+   在 winsw.WrapperService.StopProcessAndChildren(Int32 pid)
+   在 winsw.WrapperService.StopIt()
+   在 winsw.WrapperService.OnShutdown()
+2019-12-19 17:24:30 - Starting C:\Program Files\nodejs\node.exe  --harmony D:\workspace\node-video\node_modules\node-windows\lib\wrapper.js --file D:\workspace\node-video\app.js --log "node_rtsp wrapper" --grow 0.25 --wait 1 --maxrestarts 40 --abortonerror n --stopparentfirst undefined
+2019-12-19 17:24:30 - Started 5192

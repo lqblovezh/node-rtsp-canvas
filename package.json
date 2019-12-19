@@ -13,6 +13,7 @@
     "express": "^4.17.1",
     "moment": "^2.24.0",
     "node-cmd": "^3.0.0",
-    "node-rtsp-stream-jsmpeg": "0.0.2"
+    "node-rtsp-stream-jsmpeg": "0.0.2",
+    "node-windows": "^0.1.14"
   }
 }
