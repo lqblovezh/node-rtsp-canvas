@@ -56,7 +56,7 @@ app.post('/port', async function(req, res) {
 
 app.get('/port/stop', async function(req, res) {
 	cmd.run('taskkill /F /IM ffmpeg.exe');
-	cmd.run('pkill -f ffmpeg.exe');
+	// cmd.run('pkill -f ffmpeg.exe');
 	callfile.exec(
 		'sh stop.sh',
 		null,
