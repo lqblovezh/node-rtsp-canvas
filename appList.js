@@ -9,7 +9,7 @@ const moment = require('moment');
 const callfile = require('child_process');
 moment.locale('zh-cn');
 var cmd = require('node-cmd');
-const wsPort = '2700';
+let wsPort = 2700;
 
 // 静态服务器
 // app.use(express.static(path.join(__dirname, 'resource')));
@@ -32,7 +32,7 @@ app.all('*', function(req, res, next) {
 });
 
 // 初始化加载
-let playList = null;
+let playList = [];
 
 app.post('/port', async function(req, res) {
 	let url = req.body.url;
@@ -43,49 +43,55 @@ app.post('/port', async function(req, res) {
 		});
 		return;
 	}
-	// cmd.run('taskkill /F /IM ffmpeg.exe')
-	// cmd.run('pkill -f ffmpeg.exe')
-	await startFFmpeg(url);
-	setTimeout(() => {
+	let findUrl = playList.find((item) => item.url == url);
+	if (findUrl) {
 		res.send({
 			data: '启动',
 			code: 0,
-			port: wsPort
+			port: findUrl.port
+		});
+		return false;
+	}
+	await startFFmpeg(url);
+	setTimeout(() => {
+		let port = wsPort;
+		wsPort = wsPort + 1;
+		console.log(port, wsPort);
+		res.send({
+			data: '启动',
+			code: 0,
+			port
 		});
 	}, 4000);
 });
 
 app.get('/port/stop', async function(req, res) {
-	cmd.run('taskkill /F /IM ffmpeg.exe');
-	// cmd.run('pkill -f ffmpeg.exe');
-	callfile.exec(
-		'sh stop.sh',
-		null,
-		await function(err, stdout, stderr) {
-			playList && playList.stop(); // 关闭websocker端口
-			res.send({
-				data: '关闭成功',
-				code: 0
-			});
-		}
-	);
+	// cmd.run('taskkill /F /IM ffmpeg.exe');
+	// // cmd.run('pkill -f ffmpeg.exe');
+	// callfile.exec(
+	// 	'sh stop.sh',
+	// 	null,
+	// 	await function(err, stdout, stderr) {
+	// 		playList && playList.stop(); // 关闭websocker端口
+	// 		res.send({
+	// 			data: '关闭成功',
+	// 			code: 0
+	// 		});
+	// 	}
+	// );
 });
 
 async function startFFmpeg(url) {
-	playList && playList.stop();
-	callfile.exec(
-		'sh stop.sh',
-		null,
-		await function(err, stdout, stderr) {
-			const options = {
-				name: 'streamName',
-				url,
-				wsPort
-			};
-			console.log(url);
-			playList = new Stream(options);
-			playList.start();
-			playList.port = wsPort;
-		}
-	);
+	console.log(wsPort, 22222);
+	const options = {
+		name: 'streamName' + wsPort,
+		url,
+		wsPort
+	};
+	let obj = {};
+	obj.stream = new Stream(options);
+	obj.stream.start();
+	obj.port = wsPort;
+	obj.url = url;
+	playList.push(obj);
 }
