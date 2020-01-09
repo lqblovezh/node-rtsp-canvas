@@ -10,6 +10,7 @@ const callfile = require('child_process');
 moment.locale('zh-cn');
 var cmd = require('node-cmd');
 let wsPort = 2700;
+const maxLength = 10;
 
 // 静态服务器
 // app.use(express.static(path.join(__dirname, 'resource')));
@@ -33,30 +34,43 @@ app.all('*', function(req, res, next) {
 
 // 初始化加载
 let playList = [];
+let LockUp = false;
 
 app.post('/port', async function(req, res) {
+	if (LockUp) {
+		return res.send({
+			msg: '同时启动请稍后',
+			code: 1
+		});
+	}
 	let url = req.body.url;
 	if (!url) {
-		res.send({
+		return res.send({
 			data: '缺少地址',
 			code: 0
 		});
-		return;
 	}
 	let findUrl = playList.find((item) => item.url == url);
 	if (findUrl) {
-		res.send({
+		findUrl.number += 1;
+		return res.send({
 			data: '启动',
 			code: 0,
 			port: findUrl.port
 		});
-		return false;
 	}
-	await startFFmpeg(url);
+	if (playList.length >= maxLength) {
+		return res.send({
+			msg: `已超过${maxLength}条限制，等待他人关闭后重试！`,
+			code: 1
+		});
+	}
+	let port = wsPort;
+	await startFFmpeg(url, port);
 	setTimeout(() => {
-		let port = wsPort;
-		wsPort = wsPort + 1;
-		console.log(port, wsPort);
+		console.log(playList);
+		LockUp = false;
+		wsPort += 5;
 		res.send({
 			data: '启动',
 			code: 0,
@@ -66,23 +80,45 @@ app.post('/port', async function(req, res) {
 });
 
 app.get('/port/stop', async function(req, res) {
-	// cmd.run('taskkill /F /IM ffmpeg.exe');
-	// // cmd.run('pkill -f ffmpeg.exe');
-	// callfile.exec(
-	// 	'sh stop.sh',
-	// 	null,
-	// 	await function(err, stdout, stderr) {
-	// 		playList && playList.stop(); // 关闭websocker端口
-	// 		res.send({
-	// 			data: '关闭成功',
-	// 			code: 0
-	// 		});
-	// 	}
-	// );
+	let url = req.query.url;
+	if (!url) {
+		return res.send({
+			data: '缺少地址',
+			code: 0
+		});
+	}
+	let findUrl = playList.find((item) => item.url == url);
+	if (findUrl) {
+		if (findUrl.number <= 1) {
+			let port = findUrl.port;
+			let url = findUrl.url;
+			cmd.run(`ps -ef | grep ${url} | cut -c 9-15 | xargs kill -9`);
+			console.log(url, 1);
+			callfile.exec(
+				`"sh hiStop.sh" ${port} ${url}`,
+				null,
+				await function(err, stdout, stderr) {
+					console.log('---------stop----------');
+					findUrl.stream.stop();
+					let index = playList.findIndex((item) => item.url == url);
+					playList.splice(index, 1);
+					if (!playList.length) {
+						wsPort = 2700;
+					}
+					res.send({
+						data: '关闭成功',
+						code: 0
+					});
+				}
+			);
+		} else {
+			findUrl.number -= 1;
+		}
+	}
 });
 
-async function startFFmpeg(url) {
-	console.log(wsPort, 22222);
+async function startFFmpeg(url, wsPort) {
+	LockUp = true;
 	const options = {
 		name: 'streamName' + wsPort,
 		url,
@@ -92,6 +128,7 @@ async function startFFmpeg(url) {
 	obj.stream = new Stream(options);
 	obj.stream.start();
 	obj.port = wsPort;
+	obj.number = 1;
 	obj.url = url;
 	playList.push(obj);
 }

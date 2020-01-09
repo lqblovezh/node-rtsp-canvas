@@ -47,6 +47,7 @@ app.post('/port', async function(req, res) {
 	// cmd.run('pkill -f ffmpeg.exe')
 	await startFFmpeg(url);
 	setTimeout(() => {
+    console.log(playList,'----------');
 		res.send({
 			data: '启动',
 			code: 0,
@@ -57,7 +58,7 @@ app.post('/port', async function(req, res) {
 
 app.get('/port/stop', async function(req, res) {
 	cmd.run('taskkill /F /IM ffmpeg.exe');
-	// cmd.run('pkill -f ffmpeg.exe');
+	cmd.run('ps -ef | grep "rtsp_transport" | cut -c 9-15 | xargs kill -9');
 	callfile.exec(
 		'sh stop.sh',
 		null,
