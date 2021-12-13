@@ -92,6 +92,7 @@ app.get("/port/stop", async function (req, res) {
       let port = findUrl.port;
       let url = findUrl.url;
       cmd.run(`ps -ef | grep ${url} | cut -c 9-15 | xargs kill -9`);
+      cmd.run('taskkill /F /IM ffmpeg.exe'); // for windows
       callfile.exec(
         `"sh hiStop.sh" ${port} ${url}`,
         null,
